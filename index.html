@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gmail</title>
+
+    <!-- BEGIN: Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {};
+    </script>
+    <!-- END: Tailwind -->
+
+    <!-- BEGIN: Alpinejs -->
+    <script defer src="https://unpkg.com/alpinejs"></script>
+    <script>
+      const GmailKit = () => ({
+        loaded: false,
+        postContent: null,
+        postContentComments: null,
+        sidebarExtended: true,
+        currentSubreddit: "gaming",
+        subreddits: [
+          "gaming",
+          "pics",
+          "askreddit",
+          "jokes",
+          "funny",
+          "iama",
+          "wtf",
+        ],
+        subredditIcons: [
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/inbox_fill_baseline_p900_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/star_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/schedule_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/send_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/draft_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/expand_less_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/label_important_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/schedule_send_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/stacked_email_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/report_baseline_nv700_20dp.png",
+          "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/delete_baseline_nv700_20dp.png",
+        ],
+        altSubredditIcons:
+          "https://www.gstatic.com/images/icons/material/system/1x/flag_gm_blue_20dp.png",
+
+        subredditItems: [],
+        subredditLoaded: false,
+        viewedPosts: {},
+
+        init() {
+          this.loaded = true;
+          this.changeSubreddit(this.subreddits[0]);
+        },
+
+        addSubreddit() {
+          let subreddit = prompt("Enter a subreddit name");
+          if (subreddit) this.subreddits.push(subreddit);
+        },
+
+        changeSubreddit(subreddit) {
+          this.currentSubreddit = subreddit;
+          this.fetchSubreddit(subreddit);
+        },
+
+        fetchSubreddit(subreddit) {
+          this.subredditLoaded = false;
+          this.subredditItems = [];
+          fetch(`https://www.reddit.com/r/${subreddit}.json`)
+            .then((response) => response.json())
+            .then((data) => {
+              this.subredditItems = data.data.children;
+              this.subredditLoaded = true;
+            });
+        },
+
+        fetchPost(postData) {
+          this.postContent = postData;
+          this.fetchPostComments(postData.id);
+          this.viewedPosts[postData.id] = true;
+        },
+
+        fetchPostComments(postId) {
+          this.postContentComments = [];
+          fetch(
+            `https://www.reddit.com/r/${this.currentSubreddit}/comments/${postId}.json`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              this.postContentComments = data[1].data.children;
+            });
+        },
+      });
+    </script>
+    <!-- END: Alpinejs -->
+  </head>
+  <body>
+    <main x-data="GmailKit">
+      <template x-if="loaded">
+        <div class="h-screen flex">
+          <!-- BEGIN: Navbar -->
+          <nav
+            class="w-16 h-full bg-[#eaf1fb] flex flex-col items-center space-y-4 py-2"
+          >
+            <button
+              @click="sidebarExtended = !sidebarExtended"
+              class="flex items-center justify-center hover:bg-[#dae1eb] rounded-full w-12 h-12"
+            >
+              <svg focusable="false" viewBox="0 0 24 24" class="w-6 h-6">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+              </svg>
+            </button>
+
+            <button>
+              <div
+                class="w-12 h-8 rounded-full bg-blue-200/50 mx-auto bg-center bg-no-repeat"
+                style="
+                  background-image: url('https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/mail_fill_baseline_p900_20dp.png');
+                "
+              ></div>
+              <p class="text-xs">Mail</p>
+            </button>
+
+            <button>
+              <div
+                class="w-12 h-8 rounded-full mx-auto bg-center bg-no-repeat"
+                style="
+                  background-image: url('https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/chat_bubble_baseline_nv700_20dp.png');
+                "
+              ></div>
+              <p class="text-xs">Chat</p>
+            </button>
+
+            <button>
+              <div
+                class="w-12 h-8 rounded-full mx-auto bg-center bg-no-repeat"
+                style="
+                  background-image: url('https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/gmail_groups_baseline_nv700_20dp.png');
+                "
+              ></div>
+              <p class="text-xs">Spaces</p>
+            </button>
+
+            <button>
+              <div
+                class="w-12 h-8 rounded-full mx-auto bg-center bg-no-repeat"
+                style="
+                  background-image: url('https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/meet_baseline_nv700_20dp.png');
+                "
+              ></div>
+              <p class="text-xs">Meet</p>
+            </button>
+          </nav>
+          <!-- END: Navbar -->
+          <!-- BEGIN: Sidebar -->
+          <template x-if="sidebarExtended">
+            <aside class="w-64 bg-gray-50 h-screen py-3 px-6">
+              <img
+                src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r5.png"
+                alt="Gmail Logo"
+              />
+
+              <button
+                @click="addSubreddit"
+                class="px-3 py-3 bg-cyan-400/30 rounded-xl my-6 flex flex-row space-x-4 items-center"
+              >
+                <div
+                  class="w-6 h-6 object-fill bg-no-repeat"
+                  style="
+                    background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/create_black_24dp.png');
+                  "
+                ></div>
+                <p class="text-sm pr-4">Compose</p>
+              </button>
+
+              <div class="flex flex-col space-y-0">
+                <template x-for="(subreddit, index) in subreddits">
+                  <div
+                    @click="changeSubreddit(subreddit)"
+                    class="flex items-center space-x-2 rounded-full py-2 px-4 cursor-pointer"
+                    :class="{ 'bg-blue-200/80 font-bold': subreddit === currentSubreddit, 'hover:bg-gray-200/80': subreddit !== currentSubreddit }"
+                  >
+                    <div class="w-4 h-4 rounded-full">
+                      <img
+                        :src="(subredditIcons.length <= index) ? altSubredditIcons : subredditIcons[index]"
+                        alt="Subreddit Icon"
+                      />
+                    </div>
+                    <div
+                      class="text-sm font-medium text-gray-700"
+                      x-text="subreddit"
+                    ></div>
+                  </div>
+                </template>
+              </div>
+
+              <div class="pt-8 flex flex-col space-y-0">
+                <div class="flex mb-4">
+                  <div class="flex-1">
+                    <p class="text-lg">Labels</p>
+                  </div>
+                  <div>+</div>
+                </div>
+
+                <template
+                  x-for="label in ['Conversation History', 'Migrate All Mail', 'Notes']"
+                >
+                  <div class="flex items-center space-x-4">
+                    <div>
+                      <div
+                        class="w-6 h-6 bg-center bg-contain"
+                        style="
+                          background-image: url('https://www.gstatic.com/images/icons/material/system_gm_filled/1x/label_gm_grey_24dp.png');
+                        "
+                      ></div>
+                    </div>
+                    <div class="flex-1">
+                      <p class="text-sm font-light" x-text="label"></p>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </aside>
+          </template>
+          <!-- END: Sidebar -->
+
+          <div class="flex-1 h-screen flex flex-col">
+            <!-- BEGIN: Menu bar -->
+            <div class="w-full flex flex-row items-center pr-4">
+              <div
+                class="w-[48%] h-12 px-4 border-0 rounded-xl bg-blue-100/50 my-2 flex items-center space-x-4"
+              >
+                <div>
+                  <svg
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                    class="w-6 h-6 text-gray-700"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M20.49,19l-5.73-5.73C15.53,12.2,16,10.91,16,9.5C16,5.91,13.09,3,9.5,3S3,5.91,3,9.5C3,13.09,5.91,16,9.5,16 c1.41,0,2.7-0.47,3.77-1.24L19,20.49L20.49,19z M5,9.5C5,7.01,7.01,5,9.5,5S14,7.01,14,9.5S11.99,14,9.5,14S5,11.99,5,9.5z"
+                    ></path>
+                    <path d="M0,0h24v24H0V0z" fill="none"></path>
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  disabled="true"
+                  placeholder="Search in mail"
+                  class="flex-1 bg-transparent outline-none placeholder-gray-600"
+                />
+
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-6 h-6 text-gray-700"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="flex-1 flex items-center justify-end space-x-4">
+                <div>
+                  <div
+                    class="border border-gray-300 pl-4 pr-2 py-2 rounded-full flex items-center space-x-2"
+                  >
+                    <div>
+                      <div class="rounded-full w-3 h-3 bg-green-700"></div>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-500 font-medium">Active</p>
+                    </div>
+                    <div>
+                      <svg viewBox="0 0 24 24" class="h-6 w-6 text-gray-800">
+                        <path fill="currentColor" d="M7 10l5 5 5-5z"></path>
+                        <path d="M0 0h24v24H0z" fill="none"></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <svg
+                    class="w-6 h-6 text-gray-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="#000000"
+                    focusable="false"
+                  >
+                    <path fill="none" d="M0 0h24v24H0z"></path>
+                    <path
+                      fill="currentColor"
+                      d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <svg
+                    class="w-6 h-6 text-gray-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M13.85 22.25h-3.7c-.74 0-1.36-.54-1.45-1.27l-.27-1.89c-.27-.14-.53-.29-.79-.46l-1.8.72c-.7.26-1.47-.03-1.81-.65L2.2 15.53c-.35-.66-.2-1.44.36-1.88l1.53-1.19c-.01-.15-.02-.3-.02-.46 0-.15.01-.31.02-.46l-1.52-1.19c-.59-.45-.74-1.26-.37-1.88l1.85-3.19c.34-.62 1.11-.9 1.79-.63l1.81.73c.26-.17.52-.32.78-.46l.27-1.91c.09-.7.71-1.25 1.44-1.25h3.7c.74 0 1.36.54 1.45 1.27l.27 1.89c.27.14.53.29.79.46l1.8-.72c.71-.26 1.48.03 1.82.65l1.84 3.18c.36.66.2 1.44-.36 1.88l-1.52 1.19c.01.15.02.3.02.46s-.01.31-.02.46l1.52 1.19c.56.45.72 1.23.37 1.86l-1.86 3.22c-.34.62-1.11.9-1.8.63l-1.8-.72c-.26.17-.52.32-.78.46l-.27 1.91c-.1.68-.72 1.22-1.46 1.22zm-3.23-2h2.76l.37-2.55.53-.22c.44-.18.88-.44 1.34-.78l.45-.34 2.38.96 1.38-2.4-2.03-1.58.07-.56c.03-.26.06-.51.06-.78s-.03-.53-.06-.78l-.07-.56 2.03-1.58-1.39-2.4-2.39.96-.45-.35c-.42-.32-.87-.58-1.33-.77l-.52-.22-.37-2.55h-2.76l-.37 2.55-.53.21c-.44.19-.88.44-1.34.79l-.45.33-2.38-.95-1.39 2.39 2.03 1.58-.07.56a7 7 0 0 0-.06.79c0 .26.02.53.06.78l.07.56-2.03 1.58 1.38 2.4 2.39-.96.45.35c.43.33.86.58 1.33.77l.53.22.38 2.55z"
+                    ></path>
+                    <circle
+                      fill="currentColor"
+                      cx="12"
+                      cy="12"
+                      r="3.5"
+                    ></circle>
+                  </svg>
+                </div>
+                <div>
+                  <svg
+                    class="w-6 h-6 text-gray-600"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M6,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM16,6c0,1.1 0.9,2 2,2s2,-0.9 2,-2 -0.9,-2 -2,-2 -2,0.9 -2,2zM12,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <a
+                  href="https://github.com/niturobert/gmailkit/"
+                  target="_blank"
+                  class="border border-gray-200 p-2 flex space-x-2 items-center rounded-md cursor-pointer hover:bg-gray-100"
+                >
+                  <img
+                    src="https://www.google.com/u/1/ac/images/logo.gif?uid=105939349603080396778&service=google_gsuite"
+                    class="h-6"
+                  />
+
+                  <img
+                    src="https://i.stack.imgur.com/34AD2.jpg"
+                    class="h-8 w-8 object-cover rounded-full"
+                  />
+                </a>
+              </div>
+            </div>
+            <div class="w-full flex flex-row items-center"></div>
+            <!-- END: Menu bar -->
+            <div class="flex flex-row flex-1">
+              <!-- BEGIN: List posts -->
+              <div class="flex-1 overflow-y-scroll h-screen">
+                <template x-for="item in subredditItems">
+                  <div
+                    @click="fetchPost(item.data)"
+                    class="flex flex-row items-center space-x-4 py-2 px-4 cursor-pointer max-w-full border-b border-gray-200"
+                    :class="{ 'bg-gray-200/80': viewedPosts[item.data.id], 'bg-blue-200': postContent !== null && postContent.id === item.data.id, 'hover:bg-gray-100': postContent !== null && postContent.id !== item.data.id }"
+                  >
+                    <div>
+                      <input type="checkbox" />
+                    </div>
+                    <div>-</div>
+                    <div class="min-w-64 max-w-64">
+                      <div class="w-42 max-w-42">
+                        <p
+                          class="w-42 min-w-42 max-w-42 truncate text-sm"
+                          x-text="item.data.author"
+                        ></p>
+                      </div>
+                    </div>
+                    <div class="flex-1">
+                      <p
+                        class="max-w-32 text-ellipsis overflow-x-clip text-sm"
+                        x-text="item.data.title.slice(0, 42)"
+                      ></p>
+                    </div>
+                    <div>
+                      <p
+                        x-text="(new Date(item.data.created)).toLocaleString()"
+                      ></p>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <!-- END: List posts -->
+
+              <!-- BEGIN: Post content -->
+              <article class="flex-1 bg-white overflow-y-scroll h-screen">
+                <template x-if="postContent === null">
+                  <div class="p-8">
+                    <p>Welcome to GmailKit!</p>
+                    <i class="italic"
+                      >Select a subreddit to get started. You can add subreddits
+                      by clicking the "Compose" button</i
+                    >
+                  </div>
+                </template>
+                <template x-if="postContent !== null">
+                  <div class="p-8">
+                    <h1 class="text-xl" x-text="postContent.title"></h1>
+                    <div>
+                      <div
+                        class="px-[0.25rem] rounded bg-neutral-200 text-gray-800 text-xs w-fit"
+                      >
+                        Inbox
+                      </div>
+                    </div>
+                    <div class="flex flex-row space-x-4 items-center">
+                      <div class="w-10 h-10">
+                        <img
+                          :src="postContent.thumbnail"
+                          onerror="this.src = 'https://lh3.googleusercontent.com/a/default-user=s40-p'"
+                          class="rounded-full object-cover w-10 h-10 aspect-square"
+                        />
+                      </div>
+                      <div class="flex flex-col justify-between py-2">
+                        <div>
+                          <p
+                            class="font-medium text-sm"
+                            x-text="postContent.author"
+                          ></p>
+                        </div>
+                        <div><p class="text-xs text-gray-700">to me</p></div>
+                      </div>
+                      <div
+                        class="flex-1 flex flex-col justify-between items-end py-2"
+                      >
+                        <div class="flex flex-row space-x-2">
+                          <div>
+                            <p
+                              class="text-gray-500 text-sm"
+                              x-text="new Date(postContent.created_utc * 1000).toLocaleString()"
+                            ></p>
+                          </div>
+                          <div>
+                            <p class="text-gray-500 text-sm">•</p>
+                          </div>
+                          <div>
+                            <p class="text-gray-500 text-sm">•</p>
+                          </div>
+                          <div>
+                            <p class="text-gray-500 text-sm">•</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p
+                            class="font-medium text-sm opacity-0"
+                            x-text="postContent.author"
+                          ></p>
+                        </div>
+                      </div>
+                    </div>
+                    <a
+                      :href="postContent.url"
+                      target="_blank"
+                      class="text-sm text-blue-500 underline pl-14"
+                      x-text="postContent.url"
+                    ></a>
+                    <p
+                      class="text-sm text-gray-500 pl-14"
+                      x-text="postContent.selftext"
+                    ></p>
+
+                    <div
+                      class="ml-14 flex flex-col pl-2 border-l-2 border-gray-200"
+                    >
+                      <template x-if="postContentComments.length === 0">
+                        <p>No comments</p>
+                      </template>
+
+                      <!-- Print all comments -->
+                      <template x-for="comment in postContentComments">
+                        <div
+                          class="flex flex-row space-x-2 items-center py-2"
+                          :class="{
+                        'pl-2': comment.data.depth === 0,
+                        'pl-4': comment.data.depth === 1,
+                        'pl-6': comment.data.depth === 2,
+                        'pl-8': comment.data.depth === 3,
+                        'pl-10': comment.data.depth === 4,
+                        'pl-12': comment.data.depth === 5,
+                        'pl-14': comment.data.depth === 6,
+                        'pl-16': comment.data.depth === 7,
+                        'pl-18': comment.data.depth === 8,
+                        'pl-20': comment.data.depth === 9,
+                        'pl-22': comment.data.depth === 10,
+                        'pl-24': comment.data.depth === 11,
+                        'pl-26': comment.data.depth === 12,
+                        'pl-28': comment.data.depth === 13,
+                        'pl-30': comment.data.depth === 14,
+                        'pl-32': comment.data.depth === 15,
+                        'pl-34': comment.data.depth === 16,
+                        'pl-36': comment.data.depth === 17,
+                        'pl-38': comment.data.depth === 18,
+                        'pl-40': comment.data.depth === 19,
+                        'pl-42': comment.data.depth >== 20,
+                      }"
+                        >
+                          <div class="w-4 h-4 rounded-full"></div>
+                          <div class="flex flex-col">
+                            <div class="flex flex-row space-x-2 items-center">
+                              <div class="w-4 h-4 rounded-full"></div>
+                              <div
+                                class="text-sm font-medium text-gray-700"
+                                x-text="comment.data.author"
+                              ></div>
+                            </div>
+                            <div class="flex flex-row space-x-2 items-center">
+                              <div class="w-4 h-4 rounded-full"></div>
+                              <div
+                                class="text-sm font-medium text-gray-700"
+                                x-text="comment.data.body"
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                      <!-- END Print all comments -->
+                    </div>
+                  </div>
+                </template>
+              </article>
+              <!-- END: Post content -->
+            </div>
+          </div>
+        </div>
+      </template>
+      <template x-if="!loaded">
+        <div class="h-screen flex justify-center items-center">
+          <div
+            class="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"
+          ></div>
+        </div>
+      </template>
+    </main>
+  </body>
+</html>
