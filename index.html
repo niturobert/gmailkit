@@ -4,13 +4,11 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gmail</title>
+    <title>Inbox - GMailKit</title>
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
 
     <!-- BEGIN: Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {};
-    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=aspect-ratio,line-clamp"></script>
     <!-- END: Tailwind -->
 
     <!-- BEGIN: Alpinejs -->
@@ -227,9 +225,9 @@
           </template>
           <!-- END: Sidebar -->
 
-          <div class="flex-1 h-screen flex flex-col">
+          <div class="flex-1 h-screen max-h-screen flex flex-col">
             <!-- BEGIN: Menu bar -->
-            <div class="w-full flex flex-row items-center pr-4">
+            <header class="w-full flex flex-row items-center pr-4">
               <div
                 class="w-[48%] h-12 px-4 border-0 rounded-xl bg-blue-100/50 my-2 flex items-center space-x-4"
               >
@@ -351,12 +349,103 @@
                   />
                 </a>
               </div>
+            </header>
+            <!-- BEGIN: Prelist actions -->
+            <div class="w-full flex flex-row items-center p-4">
+              <div>
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/check_box_outline_blank_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pr-4">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/arrow_drop_down_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pr-4">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/archive_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pr-4">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/report_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pr-6 border-r border-gray-200">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/delete_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pl-6 pr-4">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/mail_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pr-4">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/schedule_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pr-6 border-r border-gray-200">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/add_task_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pl-6 pr-4">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/drive_file_move_outline_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pl-4">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/label_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
+              <div class="pl-4">
+                <div
+                  class="w-5 h-5 bg-contain bg-no-repeat"
+                  style="
+                    background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/more_vert_baseline_nv700_20dp.png');
+                  "
+                ></div>
+              </div>
             </div>
-            <div class="w-full flex flex-row items-center"></div>
+            <!-- END: Prelist actions -->
             <!-- END: Menu bar -->
-            <div class="flex flex-row flex-1">
+            <div class="flex flex-row flex-1 overflow-y-auto">
               <!-- BEGIN: List posts -->
-              <div class="flex-1 overflow-y-scroll h-screen">
+              <div class="h-full max–h-full flex-1 overflow-y-scroll">
                 <template x-for="item in subredditItems">
                   <div
                     @click="fetchPost(item.data)"
@@ -367,23 +456,24 @@
                       <input type="checkbox" />
                     </div>
                     <div>-</div>
-                    <div class="min-w-64 max-w-64">
-                      <div class="w-42 max-w-42">
+                    <div>
+                      <div class="w-36 max-w-36">
                         <p
-                          class="w-42 min-w-42 max-w-42 truncate text-sm"
+                          class="line-clamp-1 text-sm"
                           x-text="item.data.author"
                         ></p>
                       </div>
                     </div>
                     <div class="flex-1">
                       <p
-                        class="max-w-32 text-ellipsis overflow-x-clip text-sm"
-                        x-text="item.data.title.slice(0, 42)"
+                        class="line-clamp-1 text-sm"
+                        x-text="item.data.title"
                       ></p>
                     </div>
                     <div>
                       <p
-                        x-text="(new Date(item.data.created)).toLocaleString()"
+                        class="text-sm"
+                        x-text="(new Date(item.data.created * 1000)).toLocaleString()"
                       ></p>
                     </div>
                   </div>
@@ -392,7 +482,7 @@
               <!-- END: List posts -->
 
               <!-- BEGIN: Post content -->
-              <article class="flex-1 bg-white overflow-y-scroll h-screen">
+              <article class="flex-1 bg-white overflow-y-scroll">
                 <template x-if="postContent === null">
                   <div class="p-8">
                     <p>Welcome to GmailKit!</p>
@@ -403,7 +493,7 @@
                   </div>
                 </template>
                 <template x-if="postContent !== null">
-                  <div class="p-8">
+                  <div class="px-8">
                     <h1 class="text-xl" x-text="postContent.title"></h1>
                     <div>
                       <div
@@ -432,21 +522,38 @@
                       <div
                         class="flex-1 flex flex-col justify-between items-end py-2"
                       >
-                        <div class="flex flex-row space-x-2">
+                        <div class="flex flex-row items-center space-x-2">
                           <div>
                             <p
-                              class="text-gray-500 text-sm"
+                              class="text-gray-500 text-xs"
                               x-text="new Date(postContent.created_utc * 1000).toLocaleString()"
                             ></p>
                           </div>
                           <div>
-                            <p class="text-gray-500 text-sm">•</p>
+                            <div
+                              class="w-4 h-4 bg-no-repeat bg-contain"
+                              style="
+                                background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/star_border_black_20dp.png');
+                              "
+                            ></div>
                           </div>
+
                           <div>
-                            <p class="text-gray-500 text-sm">•</p>
+                            <div
+                              class="w-4 h-4 bg-no-repeat bg-contain"
+                              style="
+                                background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/reply_baseline_nv700_20dp.png');
+                              "
+                            ></div>
                           </div>
+
                           <div>
-                            <p class="text-gray-500 text-sm">•</p>
+                            <div
+                              class="w-4 h-4 bg-no-repeat bg-contain"
+                              style="
+                                background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/more_vert_baseline_nv700_20dp.png');
+                              "
+                            ></div>
                           </div>
                         </div>
                         <div>
@@ -468,57 +575,22 @@
                       x-text="postContent.selftext"
                     ></p>
 
-                    <div
-                      class="ml-14 flex flex-col pl-2 border-l-2 border-gray-200"
-                    >
+                    <div class="ml-14 flex flex-col mt-6">
                       <template x-if="postContentComments.length === 0">
                         <p>No comments</p>
                       </template>
 
                       <!-- Print all comments -->
                       <template x-for="comment in postContentComments">
-                        <div
-                          class="flex flex-row space-x-2 items-center py-2"
-                          :class="{
-                        'pl-2': comment.data.depth === 0,
-                        'pl-4': comment.data.depth === 1,
-                        'pl-6': comment.data.depth === 2,
-                        'pl-8': comment.data.depth === 3,
-                        'pl-10': comment.data.depth === 4,
-                        'pl-12': comment.data.depth === 5,
-                        'pl-14': comment.data.depth === 6,
-                        'pl-16': comment.data.depth === 7,
-                        'pl-18': comment.data.depth === 8,
-                        'pl-20': comment.data.depth === 9,
-                        'pl-22': comment.data.depth === 10,
-                        'pl-24': comment.data.depth === 11,
-                        'pl-26': comment.data.depth === 12,
-                        'pl-28': comment.data.depth === 13,
-                        'pl-30': comment.data.depth === 14,
-                        'pl-32': comment.data.depth === 15,
-                        'pl-34': comment.data.depth === 16,
-                        'pl-36': comment.data.depth === 17,
-                        'pl-38': comment.data.depth === 18,
-                        'pl-40': comment.data.depth === 19,
-                        'pl-42': comment.data.depth >== 20,
-                      }"
-                        >
-                          <div class="w-4 h-4 rounded-full"></div>
-                          <div class="flex flex-col">
-                            <div class="flex flex-row space-x-2 items-center">
-                              <div class="w-4 h-4 rounded-full"></div>
-                              <div
-                                class="text-sm font-medium text-gray-700"
-                                x-text="comment.data.author"
-                              ></div>
-                            </div>
-                            <div class="flex flex-row space-x-2 items-center">
-                              <div class="w-4 h-4 rounded-full"></div>
-                              <div
-                                class="text-sm font-medium text-gray-700"
-                                x-text="comment.data.body"
-                              ></div>
-                            </div>
+                        <div class="border-l-2 border-gray-300 pb-2">
+                          <div
+                            :style="`padding-left: ${comment.data.depth * 0.5 + 0.25}rem`"
+                          >
+                            <h3
+                              class="text-sm text-gray-700"
+                              x-text="'u/' + comment.data.author"
+                            ></h3>
+                            <p class="text-sm" x-text="comment.data.body"></p>
                           </div>
                         </div>
                       </template>

@@ -4,7 +4,7 @@
 
 ## What is it?
 
-GmailKit is a Reddit client that looks just like Gmail. It's been developed in 3 hours. There are inconsistencies and bugs. It's just a joke.
+GmailKit is a Reddit client that looks just like Gmail. It's been developed in 4 hours. There are inconsistencies and bugs. It's just a joke.
 
 It was inspired by [this github project](https://github.com/pcottle/MSOutlookit/)
 
