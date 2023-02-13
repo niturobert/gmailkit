@@ -19,8 +19,9 @@
         postContent: null,
         postContentComments: null,
         sidebarExtended: true,
-        currentSubreddit: "gaming",
+        currentSubreddit: null,
         subreddits: [
+          "all",
           "gaming",
           "pics",
           "askreddit",
@@ -28,6 +29,7 @@
           "funny",
           "iama",
           "wtf",
+          "baduibattles",
         ],
         subredditIcons: [
           "https://ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/inbox_fill_baseline_p900_20dp.png",
@@ -49,6 +51,8 @@
         subredditLoaded: false,
         viewedPosts: {},
 
+        searchQuery: "",
+
         init() {
           this.loaded = true;
           this.changeSubreddit(this.subreddits[0]);
@@ -61,6 +65,7 @@
 
         changeSubreddit(subreddit) {
           this.currentSubreddit = subreddit;
+          this.searchQuery = "";
           this.fetchSubreddit(subreddit);
         },
 
@@ -72,6 +77,21 @@
             .then((data) => {
               this.subredditItems = data.data.children;
               this.subredditLoaded = true;
+            });
+        },
+
+        fetchMorePosts() {
+          fetch(
+            `https://www.reddit.com/r/${this.currentSubreddit}.json?after=${
+              this.subredditItems[this.subredditItems.length - 1].data.name
+            }`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              this.subredditItems = [
+                ...this.subredditItems,
+                ...data.data.children,
+              ];
             });
         },
 
@@ -89,6 +109,21 @@
             .then((response) => response.json())
             .then((data) => {
               this.postContentComments = data[1].data.children;
+            });
+        },
+
+        searchSubredditPosts() {
+          this.subredditLoaded = false;
+          this.subredditItems = [];
+          debugger;
+          fetch(
+            `https://www.reddit.com/r/${this.currentSubreddit}/search.json?q=${this.searchQuery}&restrict_sr=on`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              debugger;
+              this.subredditItems = data.data.children;
+              this.subredditLoaded = true;
             });
         },
       });
@@ -189,7 +224,7 @@
                     </div>
                     <div
                       class="text-sm font-medium text-gray-700"
-                      x-text="subreddit"
+                      x-text="subreddit.toUpperCase()[0] + subreddit.slice(1)"
                     ></div>
                   </div>
                 </template>
@@ -247,7 +282,9 @@
                 </div>
                 <input
                   type="text"
-                  disabled="true"
+                  x-model="searchQuery"
+                  @keypress.enter="searchSubredditPosts"
+                  @focus.out="searchSubredditPosts"
                   placeholder="Search in mail"
                   class="flex-1 bg-transparent outline-none placeholder-gray-600"
                 />
@@ -449,13 +486,20 @@
                 <template x-for="item in subredditItems">
                   <div
                     @click="fetchPost(item.data)"
-                    class="flex flex-row items-center space-x-4 py-2 px-4 cursor-pointer max-w-full border-b border-gray-200"
+                    class="flex flex-row items-start space-x-4 py-2 px-4 cursor-pointer max-w-full border-b border-gray-200"
                     :class="{ 'bg-gray-200/80': viewedPosts[item.data.id], 'bg-blue-200': postContent !== null && postContent.id === item.data.id, 'hover:bg-gray-100': postContent !== null && postContent.id !== item.data.id }"
                   >
                     <div>
                       <input type="checkbox" />
                     </div>
-                    <div>-</div>
+                    <div>
+                      <div
+                        class="w-4 h-4 bg-no-repeat bg-contain"
+                        style="
+                          background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/star_border_black_20dp.png');
+                        "
+                      ></div>
+                    </div>
                     <div>
                       <div class="w-36 max-w-36">
                         <p
@@ -465,10 +509,64 @@
                       </div>
                     </div>
                     <div class="flex-1">
-                      <p
-                        class="line-clamp-1 text-sm"
-                        x-text="item.data.title"
-                      ></p>
+                      <div class="flex flex-col items-start justify-start">
+                        <div>
+                          <p
+                            class="line-clamp-1 text-sm"
+                            x-text="item.data.title"
+                          ></p>
+                        </div>
+                        <div>
+                          <!-- BEGIN: Check if the content is an image. -->
+                          <template
+                            x-if="item.data.kind === 't3' && item.data.post_hint === 'image' || item.data.url.includes('.jpg') || item.data.url.includes('.png') || item.data.url.includes('.gif')"
+                          >
+                            <a
+                              target="attachment"
+                              :href="item.data.url"
+                              class="px-2 py-1 rounded-full border border-gray-300 flex flex-row items-center space-x-2"
+                            >
+                              <div
+                                class="w-4 h-4 bg-no-repeat bg-contain bg-red-500"
+                                style="
+                                  background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/insert_photo_white_20dp.png');
+                                "
+                              ></div>
+                              <div>
+                                <p
+                                  class="line-clamp-1 text-sm"
+                                  x-text="item.data.url.split('?')[0].slice(-16)"
+                                ></p>
+                              </div>
+                            </a>
+                          </template>
+                          <!-- END: Check if the content is an image. -->
+
+                          <!-- BEGIN: Check if the content is a video. -->
+                          <template
+                            x-if="item.data.kind === 't3' && item.data.post_hint === 'hosted:video' || item.data.url.includes('.mp4') || item.data.url.includes('.mov') || item.data.url.includes('.avi') || item.data.url.includes('.wmv') || item.data.url.includes('.flv') || item.data.url.includes('.webm') || item.data.url.includes('.mkv') || item.data.url.includes('youtube.com') || item.data.url.includes('youtu.be')"
+                          >
+                            <a
+                              target="attachment"
+                              :href="item.data.url"
+                              class="px-2 py-1 rounded-full border border-gray-300 flex flex-row items-center space-x-2"
+                            >
+                              <div
+                                class="w-4 h-4 bg-no-repeat bg-contain bg-red-500"
+                                style="
+                                  background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/ondemand_video_white_20dp.png');
+                                "
+                              ></div>
+                              <div>
+                                <p
+                                  class="line-clamp-1 text-sm"
+                                  x-text="item.data.url.split('?')[0].slice(-16)"
+                                ></p>
+                              </div>
+                            </a>
+                          </template>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <p
@@ -476,6 +574,21 @@
                         x-text="(new Date(item.data.created * 1000)).toLocaleString()"
                       ></p>
                     </div>
+                  </div>
+                </template>
+
+                <!-- Load more button if there are posts. -->
+                <template x-if="subredditItems.length > 0">
+                  <div
+                    @click="fetchMorePosts()"
+                    class="flex flex-row items-center justify-center py-4 cursor-pointer"
+                  >
+                    <div
+                      class="w-5 h-5 bg-no-repeat bg-contain"
+                      style="
+                        background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/expand_more_black_20dp.png');
+                      "
+                    ></div>
                   </div>
                 </template>
               </div>

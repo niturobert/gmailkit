@@ -19,3 +19,9 @@ Just open the `index.html` file in your browser. You can also use the [online ve
 - [GitHub Pages](https://pages.github.com/)
 - [Reddit API](https://www.reddit.com/dev/api/)
 - [Gmail](https://mail.google.com/)
+
+## Updates
+
+- Implemented the "Load more" button
+- Implemented the search bar
+- Added the "Attachments" section on the list of posts. TODO: change the icons.
