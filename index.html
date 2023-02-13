@@ -603,6 +603,13 @@
                       >Select a subreddit to get started. You can add subreddits
                       by clicking the "Compose" button</i
                     >
+
+                    <p class="mt-4">Updates:</p>
+                    <ul class="list-disc list-inside">
+                      <li>Implemented the Search functionality.</li>
+                      <li>Attachments are now visible in the list of posts.</li>
+                      <li>Added a "Load more" button.</li>
+                    </ul>
                   </div>
                 </template>
                 <template x-if="postContent !== null">
@@ -683,6 +690,17 @@
                       class="text-sm text-blue-500 underline pl-14"
                       x-text="postContent.url"
                     ></a>
+                    <!-- BEGIN: if the content is an image, embed it here -->
+                    <template
+                      x-if="postContent.url.includes('.jpg') || postContent.url.includes('.png') || postContent.url.includes('.webp')"
+                    >
+                      <div class="flex flex-row justify-center">
+                        <img
+                          :src="postContent.url"
+                          class="w-full max-w-[600px] mt-4"
+                        />
+                      </div>
+                    </template>
                     <p
                       class="text-sm text-gray-500 pl-14"
                       x-text="postContent.selftext"

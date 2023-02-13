@@ -22,6 +22,7 @@ Just open the `index.html` file in your browser. You can also use the [online ve
 
 ## Updates
 
-- Implemented the "Load more" button
-- Implemented the search bar
+- Implemented the "Load more" button.
+- Implemented the search bar.
 - Added the "Attachments" section on the list of posts. TODO: change the icons.
+- If the post is an image, embed it in the "email".
