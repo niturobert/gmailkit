@@ -11,6 +11,14 @@
     <script src="https://cdn.tailwindcss.com?plugins=aspect-ratio,line-clamp"></script>
     <!-- END: Tailwind -->
 
+    <!-- BEGIN: MarkedJS -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- END: MarkedJS -->
+
+    <!-- BEGIN: JS-XSS -->
+    <script src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
+    <!-- END: JS-XSS -->
+
     <!-- BEGIN: Alpinejs -->
     <script defer src="https://unpkg.com/alpinejs"></script>
     <script>
@@ -115,13 +123,11 @@
         searchSubredditPosts() {
           this.subredditLoaded = false;
           this.subredditItems = [];
-          debugger;
           fetch(
             `https://www.reddit.com/r/${this.currentSubreddit}/search.json?q=${this.searchQuery}&restrict_sr=on`
           )
             .then((response) => response.json())
             .then((data) => {
-              debugger;
               this.subredditItems = data.data.children;
               this.subredditLoaded = true;
             });
@@ -703,7 +709,7 @@
                     </template>
                     <p
                       class="text-sm text-gray-500 pl-14"
-                      x-text="postContent.selftext"
+                      x-html="marked.parse(filterXSS(postContent.selftext))"
                     ></p>
 
                     <div class="ml-14 flex flex-col mt-6">
@@ -721,7 +727,9 @@
                               class="text-sm text-gray-700"
                               x-text="'u/' + comment.data.author"
                             ></h3>
-                            <p class="text-sm" x-text="comment.data.body"></p>
+                            <p class="text-sm"
+                            x-html="marked.parse(filterXSS(comment.data.body))"
+                            />
                           </div>
                         </div>
                       </template>
