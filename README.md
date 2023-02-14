@@ -26,3 +26,5 @@ Just open the `index.html` file in your browser. You can also use the [online ve
 - Implemented the search bar.
 - Added the "Attachments" section on the list of posts. TODO: change the icons.
 - If the post is an image, embed it in the "email".
+- Embedded giphy links in the comment section.
+- Made the links in the comments blue.
