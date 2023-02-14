@@ -258,11 +258,18 @@
               </div>
 
               <div class="pt-8 flex flex-col space-y-0">
-                <div class="flex mb-4">
+                <div class="flex mb-4 items-center">
                   <div class="flex-1">
                     <p class="text-lg">Labels</p>
                   </div>
-                  <div>+</div>
+                  <div>
+                    <div
+                      class="w-5 h-5 bg-contain bg-no-repeat"
+                      style="
+                        background-image: url('//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/add_large_baseline_nv700_20dp.png');
+                      "
+                    ></div>
+                  </div>
                 </div>
 
                 <template
@@ -287,9 +294,11 @@
           </template>
           <!-- END: Sidebar -->
 
-          <div class="flex-1 h-screen max-h-screen flex flex-col">
+          <div
+            class="flex-1 h-screen max-h-screen flex flex-col px-4 bg-gray-50"
+          >
             <!-- BEGIN: Menu bar -->
-            <header class="w-full flex flex-row items-center pr-4">
+            <header class="w-full flex flex-row items-center">
               <div
                 class="w-[48%] h-12 px-4 border-0 rounded-xl bg-blue-100/50 my-2 flex items-center space-x-4"
               >
@@ -415,7 +424,9 @@
               </div>
             </header>
             <!-- BEGIN: Prelist actions -->
-            <div class="w-full flex flex-row items-center p-4">
+            <div
+              class="w-full flex flex-row items-center p-4 bg-white rounded-t-xl"
+            >
               <div>
                 <div
                   class="w-5 h-5 bg-contain bg-no-repeat"
@@ -507,99 +518,97 @@
             </div>
             <!-- END: Prelist actions -->
             <!-- END: Menu bar -->
-            <div class="flex flex-row flex-1 overflow-y-auto">
+            <div class="flex flex-row flex-1 overflow-y-auto bg-white">
               <!-- BEGIN: List posts -->
               <div class="h-full max–h-full flex-1 overflow-y-scroll">
                 <template x-for="item in subredditItems">
                   <div
+                    :class="{ 'bg-gray-200/80': viewedPosts[item.data.id], 'bg-blue-100': postContent !== null && postContent.id === item.data.id, 'hover:bg-gray-100': postContent !== null && postContent.id !== item.data.id }"
+                    class="border-b border-gray-200 cursor-pointer"
                     @click="fetchPost(item.data)"
-                    class="flex flex-row items-start space-x-4 py-2 px-4 cursor-pointer max-w-full border-b border-gray-200"
-                    :class="{ 'bg-gray-200/80': viewedPosts[item.data.id], 'bg-blue-200': postContent !== null && postContent.id === item.data.id, 'hover:bg-gray-100': postContent !== null && postContent.id !== item.data.id }"
                   >
-                    <div>
-                      <input type="checkbox" />
-                    </div>
-                    <div>
-                      <div
-                        class="w-4 h-4 bg-no-repeat bg-contain"
-                        style="
-                          background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/star_border_black_20dp.png');
-                        "
-                      ></div>
-                    </div>
-                    <div>
-                      <div class="w-36 max-w-36">
+                    <div
+                      class="flex flex-row items-center space-x-4 py-2 px-4 max-w-full"
+                    >
+                      <div>
+                        <input type="checkbox" />
+                      </div>
+                      <div>
+                        <div
+                          class="w-4 h-4 bg-no-repeat bg-contain"
+                          style="
+                            background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/star_border_black_20dp.png');
+                          "
+                        ></div>
+                      </div>
+                      <div>
+                        <div class="w-36 max-w-36">
+                          <p
+                            class="line-clamp-1 text-sm"
+                            x-text="item.data.author"
+                          ></p>
+                        </div>
+                      </div>
+                      <div class="flex-1">
                         <p
                           class="line-clamp-1 text-sm"
-                          x-text="item.data.author"
+                          x-text="item.data.title"
+                        ></p>
+                      </div>
+                      <div>
+                        <p
+                          class="text-sm"
+                          x-text="(new Date(item.data.created * 1000)).toLocaleString()"
                         ></p>
                       </div>
                     </div>
-                    <div class="flex-1">
-                      <div class="flex flex-col items-start justify-start">
-                        <div>
-                          <p
-                            class="line-clamp-1 text-sm"
-                            x-text="item.data.title"
-                          ></p>
-                        </div>
-                        <div>
-                          <!-- BEGIN: Check if the content is an image. -->
-                          <template
-                            x-if="item.data.kind === 't3' && item.data.post_hint === 'image' || item.data.url.includes('.jpg') || item.data.url.includes('.png') || item.data.url.includes('.gif')"
-                          >
-                            <a
-                              target="attachment"
-                              :href="item.data.url"
-                              class="px-2 py-1 rounded-full border border-gray-300 flex flex-row items-center space-x-2"
-                            >
-                              <div
-                                class="w-4 h-4 bg-no-repeat bg-contain bg-red-500"
-                                style="
-                                  background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/insert_photo_white_20dp.png');
-                                "
-                              ></div>
-                              <div>
-                                <p
-                                  class="line-clamp-1 text-sm"
-                                  x-text="item.data.url.split('?')[0].slice(-16)"
-                                ></p>
-                              </div>
-                            </a>
-                          </template>
-                          <!-- END: Check if the content is an image. -->
-
-                          <!-- BEGIN: Check if the content is a video. -->
-                          <template
-                            x-if="item.data.kind === 't3' && item.data.post_hint === 'hosted:video' || item.data.url.includes('.mp4') || item.data.url.includes('.mov') || item.data.url.includes('.avi') || item.data.url.includes('.wmv') || item.data.url.includes('.flv') || item.data.url.includes('.webm') || item.data.url.includes('.mkv') || item.data.url.includes('youtube.com') || item.data.url.includes('youtu.be')"
-                          >
-                            <a
-                              target="attachment"
-                              :href="item.data.url"
-                              class="px-2 py-1 rounded-full border border-gray-300 flex flex-row items-center space-x-2"
-                            >
-                              <div
-                                class="w-4 h-4 bg-no-repeat bg-contain bg-red-500"
-                                style="
-                                  background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/ondemand_video_white_20dp.png');
-                                "
-                              ></div>
-                              <div>
-                                <p
-                                  class="line-clamp-1 text-sm"
-                                  x-text="item.data.url.split('?')[0].slice(-16)"
-                                ></p>
-                              </div>
-                            </a>
-                          </template>
-                        </div>
-                      </div>
-                    </div>
                     <div>
-                      <p
-                        class="text-sm"
-                        x-text="(new Date(item.data.created * 1000)).toLocaleString()"
-                      ></p>
+                      <div class="pl-[14.875rem] flex">
+                        <template
+                          x-if="item.data.kind === 't3' && item.data.post_hint === 'image' || item.data.url.includes('.jpg') || item.data.url.includes('.png') || item.data.url.includes('.gif')"
+                        >
+                          <a
+                            target="attachment"
+                            :href="item.data.url"
+                            class="px-2 py-1 rounded-full border border-gray-300 flex flex-row items-center space-x-2 mb-3"
+                          >
+                            <div
+                              class="w-4 h-4 bg-no-repeat bg-contain bg-red-500"
+                              style="
+                                background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/insert_photo_white_20dp.png');
+                              "
+                            ></div>
+                            <div>
+                              <p
+                                class="line-clamp-1 text-sm"
+                                x-text="item.data.url.split('?')[0].split('/').slice(-1)[0]"
+                              ></p>
+                            </div>
+                          </a>
+                        </template>
+                        <template
+                          x-if="item.data.kind === 't3' && item.data.post_hint === 'hosted:video' || item.data.url.includes('.mp4') || item.data.url.includes('.mov') || item.data.url.includes('.avi') || item.data.url.includes('.wmv') || item.data.url.includes('.flv') || item.data.url.includes('.webm') || item.data.url.includes('.mkv') || item.data.url.includes('youtube.com') || item.data.url.includes('youtu.be')"
+                        >
+                          <a
+                            target="attachment"
+                            :href="item.data.url"
+                            class="px-2 py-1 rounded-full border border-gray-300 flex flex-row items-center space-x-2 mb-3"
+                          >
+                            <div
+                              class="w-4 h-4 bg-no-repeat bg-contain bg-red-500"
+                              style="
+                                background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/ondemand_video_white_20dp.png');
+                              "
+                            ></div>
+                            <div>
+                              <p
+                                class="line-clamp-1 text-sm"
+                                x-text="item.data.url"
+                              ></p>
+                            </div>
+                          </a>
+                        </template>
+                      </div>
                     </div>
                   </div>
                 </template>
@@ -714,7 +723,7 @@
                     <a
                       :href="postContent.url"
                       target="_blank"
-                      class="text-sm text-blue-500 underline pl-14"
+                      class="text-sm text-blue-500 underline pl-14 line-clamp-1"
                       x-text="postContent.url"
                     ></a>
                     <!-- BEGIN: if the content is an image, embed it here -->
