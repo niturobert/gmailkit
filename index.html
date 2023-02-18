@@ -39,6 +39,7 @@
         currentSubreddit: null,
         subreddits: [
           "all",
+          "favorites",
           "gaming",
           "pics",
           "askreddit",
@@ -67,17 +68,40 @@
         subredditItems: [],
         subredditLoaded: false,
         viewedPosts: {},
+        favoritePosts: [],
+        favoriteIds: {},
 
         searchQuery: "",
 
         init() {
           this.loaded = true;
           this.changeSubreddit(this.subreddits[0]);
+
+          // Load the favorite posts from localStorage.
+          this.favoritePosts = JSON.parse(
+            localStorage.getItem("favoritePosts", [])
+          );
+
+          // Load the favorite ids from localStorage.
+          if (this.favoritePosts === null) {
+            this.favoritePosts = [];
+          }
+
+          this.favoriteIds = this.favoritePosts.reduce((acc, post) => {
+            acc[post.data.id] = true;
+            return acc;
+          }, {});
+
+          // Run the onClose function when the user closes the window.
+          window.onbeforeunload = () => {
+            this.onClose();
+          };
         },
 
         addSubreddit() {
           let subreddit = prompt("Enter a subreddit name");
-          if (subreddit) this.subreddits.push(subreddit);
+          if (subreddit && !this.subreddits.includes(subreddit))
+            this.subreddits.push(subreddit);
         },
 
         changeSubreddit(subreddit) {
@@ -89,6 +113,13 @@
         fetchSubreddit(subreddit) {
           this.subredditLoaded = false;
           this.subredditItems = [];
+
+          if (subreddit === "favorites") {
+            this.subredditItems = this.favoritePosts;
+            this.subredditLoaded = true;
+            return;
+          }
+
           fetch(`https://www.reddit.com/r/${subreddit}.json`)
             .then((response) => response.json())
             .then((data) => {
@@ -142,6 +173,18 @@
             });
         },
 
+        toggleFavorite(post) {
+          if (this.favoriteIds[post.data.id]) {
+            this.favoritePosts = this.favoritePosts.filter(
+              (iter) => iter.data.id !== post.data.id
+            );
+            delete this.favoriteIds[post.data.id];
+          } else {
+            this.favoritePosts.push(post);
+            this.favoriteIds[post.data.id] = true;
+          }
+        },
+
         formatComment(comment) {
           let content = marked.parse(filterXSS(comment));
 
@@ -152,6 +195,14 @@
           });
 
           return content;
+        },
+
+        onClose() {
+          // Save the favorite posts in the localStorage.
+          localStorage.setItem(
+            "favoritePosts",
+            JSON.stringify(this.favoritePosts)
+          );
         },
       });
     </script>
@@ -534,12 +585,27 @@
                         <input type="checkbox" />
                       </div>
                       <div>
-                        <div
-                          class="w-4 h-4 bg-no-repeat bg-contain"
-                          style="
-                            background-image: url('https://www.gstatic.com/images/icons/material/system_gm/1x/star_border_black_20dp.png');
-                          "
-                        ></div>
+                        <div @click="toggleFavorite(item)">
+                          <svg
+                            class="w-4 h-4"
+                            :class="{
+                              'text-yellow-500': favoriteIds[item.data.id],
+                              'text-gray-500': !favoriteIds[item.data.id],
+                            }"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M11.0489 4.92705C11.3483 4.00574 12.6517 4.00574 12.9511 4.92705L14.2451 8.90983C14.379 9.32185 14.763 9.60081 15.1962 9.60081H19.3839C20.3527 9.60081 20.7554 10.8404 19.9717 11.4098L16.5838 13.8713C16.2333 14.126 16.0866 14.5773 16.2205 14.9894L17.5146 18.9721C17.8139 19.8934 16.7595 20.6596 15.9757 20.0902L12.5878 17.6287C12.2373 17.374 11.7627 17.374 11.4122 17.6287L8.02426 20.0902C7.24054 20.6596 6.18607 19.8934 6.48542 18.9721L7.7795 14.9894C7.91338 14.5773 7.76672 14.126 7.41623 13.8713L4.02827 11.4098C3.24456 10.8404 3.64734 9.60081 4.61606 9.60081H8.8038C9.23703 9.60081 9.62099 9.32185 9.75486 8.90983L11.0489 4.92705Z"
+                              stroke="currentColor"
+                              :fill="favoriteIds[item.data.id] ? 'currentColor' : 'none'"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </div>
                       </div>
                       <div>
                         <div class="w-36 max-w-36">
@@ -613,8 +679,10 @@
                   </div>
                 </template>
 
-                <!-- Load more button if there are posts. -->
-                <template x-if="subredditItems.length > 0">
+                <!-- Load more button if there are posts and we're not browsing the saved posts. -->
+                <template
+                  x-if="subredditItems.length > 0 && currentSubreddit !== 'favorites'"
+                >
                   <div
                     @click="fetchMorePosts()"
                     class="flex flex-row items-center justify-center py-4 cursor-pointer"
@@ -645,6 +713,10 @@
                       <li>Implemented the Search functionality.</li>
                       <li>Attachments are now visible in the list of posts.</li>
                       <li>Added a "Load more" button.</li>
+                      <li>
+                        Implemented the "favorite" posts, persistent across page
+                        reloads.
+                      </li>
                     </ul>
                   </div>
                 </template>
@@ -673,7 +745,9 @@
                             x-text="postContent.author"
                           ></p>
                         </div>
-                        <div><p class="text-xs text-gray-700">to me</p></div>
+                        <div>
+                          <p class="text-xs text-gray-700">to me</p>
+                        </div>
                       </div>
                       <div
                         class="flex-1 flex flex-col justify-between items-end py-2"
