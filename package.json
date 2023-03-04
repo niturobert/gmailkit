@@ -1,0 +1,16 @@
+{
+	"name": "gmailkit",
+	"version": "1.0.0",
+	"author": {
+		"name": "Robert-Georgian Nitu",
+		"email": "info@niturobert.com"
+	},
+	"dependencies": {
+		"html-minifier": "^4.0.0",
+		"prettier": "^2.8.4",
+		"prettier-plugin-tailwindcss": "^0.2.4"
+	},
+	"scripts": {
+		"minify": "html-minifier --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true --input-dir ./src --output-dir ."
+	}
+}
